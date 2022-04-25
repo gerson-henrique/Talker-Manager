@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const crypto = require('crypto');
 const read = require('./helpers/readAndEdit/read');
 
 const app = express();
@@ -18,8 +19,8 @@ app.get('/talker', async (_request, response) => {
   response.status(HTTP_OK_STATUS).json(talkerText);
 });
 
-app.get('/talker/:id', async (request, response) => {
-  const { id } = request.params;
+app.get('/talker/:id', async (req, response) => {
+  const { id } = req.params;
   const aid = Number(id);
   const alltAlkers = await read('./talker.json') || [];
   console.log(alltAlkers);
@@ -31,6 +32,12 @@ app.get('/talker/:id', async (request, response) => {
 
   return response.status(200).json(idTalker);
  });
+
+ app.post('/login', async (req, response) => {
+//  const { email, password } = req.body;
+  const tk = crypto.randomBytes(16).toString('hex').substring(0, 16);
+  response.status(HTTP_OK_STATUS).json({ token: tk });
+});
 
 app.listen(PORT, () => {
   console.log('Online');
