@@ -3,10 +3,18 @@ const bodyParser = require('body-parser');
 const crypto = require('crypto');
 const read = require('./helpers/readAndEdit/read');
 
+const EmailValidation = (enteredEmail) => {
+  if (!enteredEmail.includes('@') || !enteredEmail.includes('.com')) {
+    return false;
+  }
+  return true;
+};
+
 const app = express();
 app.use(bodyParser.json());
 
 const HTTP_OK_STATUS = 200;
+const INPUT_ER_STATUS = 400;
 const PORT = '3000';
 
 // não remova esse endpoint, e para o avaliador funcionar
@@ -34,7 +42,22 @@ app.get('/talker/:id', async (req, response) => {
  });
 
  app.post('/login', async (req, response) => {
-//  const { email, password } = req.body;
+  const { email, password } = req.body;
+  if (!email) {
+    return response.status(INPUT_ER_STATUS).json({ message: 'O campo "email" é obrigatório' });
+  }
+  if (!password) {
+    return response.status(INPUT_ER_STATUS).json({ message: 'O campo "password" é obrigatório' });
+  }
+  if (password.length < 6) {
+    return response.status(INPUT_ER_STATUS).json({
+      message: 'O "password" deve ter pelo menos 6 caracteres' });
+    }
+    const isValidEmail = EmailValidation(email);
+    if (!isValidEmail) {
+    return response.status(INPUT_ER_STATUS).json({
+      message: 'O "email" deve ter o formato "email@email.com"' });
+  }
   const tk = crypto.randomBytes(16).toString('hex').substring(0, 16);
   response.status(HTTP_OK_STATUS).json({ token: tk });
 });
