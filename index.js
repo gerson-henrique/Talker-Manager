@@ -6,9 +6,9 @@ const write = require('./helpers/write');
 const talkerFind = require('./helpers/talkerFinder');
 const loginValid = require('./helpers/loginValid');
 const tokenValidation = require('./helpers/tokenValidation');
-
 const bodyValidation = require('./helpers/bodyvalidation');
 
+const path = './talker.json';
 const app = express();
 app.use(bodyParser.json());
 
@@ -22,7 +22,7 @@ app.get('/', (_request, response) => {
 });
 
 app.get('/talker', async (_request, response) => {
-  const talkerText = await read('./talker.json') || [];
+  const talkerText = await read(path) || [];
   response.status(HTTP_OK_STATUS).json(talkerText);
 });
 
@@ -37,13 +37,24 @@ app.post('/talker', tokenValidation, bodyValidation.bodyValidation,
 bodyValidation.talkvalidation, bodyValidation.dateValidation,
 bodyValidation.starsValidation, async (req, res) => {
 const { name, age, talk } = req.body;
-const newArray = await read('./talker.json');
+const newArray = await read(path);
 const id = newArray.length + 1;
-const path = './talker.json';
 const newTalker = { name, id, age, talk };
 newArray.push(newTalker);
 await write(newArray, path);
 res.status(201).json({ name, id, age, talk });
+});
+
+app.put('/talker/:id', talkerFind, tokenValidation, bodyValidation.bodyValidation,
+bodyValidation.talkvalidation, bodyValidation.dateValidation,
+bodyValidation.starsValidation, async (req, res) => {
+const { name, age, talk } = req.body;
+const { id } = req.talker;
+const idnum = Number(id);
+const newArray = await read(path);
+newArray[idnum - 1] = { name, id: idnum, age, talk };
+await write(newArray, path);
+res.status(200).json({ name, id: idnum, age, talk });
 });
 
 app.listen(PORT, () => {
