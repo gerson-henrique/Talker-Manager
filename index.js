@@ -62,6 +62,23 @@ app.get('/talker/:id', async (req, response) => {
   response.status(HTTP_OK_STATUS).json({ token: tk });
 });
 
+const tokenValidation = (req, res, next) => {
+const tokenTest = /^[a-zA-Z0-9]$/;
+const { authorization } = req.headers;
+if (!authorization) {
+  return res.status(401).json({ message: 'Token não encontrado' });
+}
+if (!tokenTest.test(authorization) || !authorization.length !== 15) {
+ return res.status(401).json({
+  message: 'Token inválido' }); 
+}
+next();
+};
+
+app.post('/talker', tokenValidation, async (req, res) => {
+res.status(200).json('podcola dog');
+});
+
 app.listen(PORT, () => {
   console.log('Online');
 });
