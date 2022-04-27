@@ -57,6 +57,15 @@ await write(newArray, path);
 res.status(200).json({ name, id: idnum, age, talk });
 });
 
+app.delete('/talker/:id', tokenValidation, talkerFind, async (req, res) => {
+const { id } = req.talker;
+const idnum = Number(id);
+const newArray = await read(path);
+newArray.splice(idnum - 1, 1);
+await write(newArray, path);
+res.status(204).end();
+});
+
 app.listen(PORT, () => {
   console.log('Online');
 });
