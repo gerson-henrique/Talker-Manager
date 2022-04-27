@@ -26,6 +26,17 @@ app.get('/talker', async (_request, response) => {
   response.status(HTTP_OK_STATUS).json(talkerText);
 });
 
+app.get('/talker/search', tokenValidation, async (request, response) => {
+  const { q } = request.query;
+  const arrayA = await read(path);
+  console.log(arrayA);
+  // if (!q) return response.status(200).json(['hm']);
+  const newArray = arrayA.filter((e) => e.name.toLowerCase().includes(q.toLowerCase())); 
+  console.log(newArray);
+  // await write(newArray, path);
+   response.status(HTTP_OK_STATUS).json(newArray);
+ });
+
 app.get('/talker/:id', talkerFind, async (req, response) => response.status(200).json(req.talker));
 
  app.post('/login', loginValid, async (req, response) => {
